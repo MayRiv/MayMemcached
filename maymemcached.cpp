@@ -24,7 +24,7 @@ using namespace std;
 int main(int argc, char** argv) {
 
     lb::SocketClient server;
-    server.InitServer(4000, "192.168.0.31");
+    server.InitServer(4000, "127.0.0.1");
     WebThreadManager manager;
     for (int i = 0; i < 10; i++)
     {

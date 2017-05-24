@@ -15,7 +15,11 @@
 #include "WebThreadManager.hpp"
 #include "socket.hpp"
 #include <stdio.h>
+#include "Protocol.hpp"
+#include <string>
+#include <iostream>
 using namespace lb;
+using namespace std;
 WebThread::WebThread(WebThreadManager* mngr, SocketClient* serv) {
     this->mngr = mngr;
     this->serv = serv;
@@ -43,10 +47,25 @@ void WebThread::run()
             continue;
         }
         try
-        {}
+        {
+            string output;
+            
+            bool isContinue = true;
+            while (isContinue)
+            {
+                if (client->Read(buf,WEB_BUF_SIZE,0,10) <= 0)
+                    throw true;
+                isContinue = Protocol::processCmd(string(buf),output);
+                cout << output << endl;
+                if (client->Send(output.c_str(), output.length()) < 0)
+                    throw true;
+                    
+                
+            }
+        }
         catch (...)
         {
-            printf("Some exception\n");
+            cout << "Some exception" << endl;
             delete client;
             client = 0;
         }
