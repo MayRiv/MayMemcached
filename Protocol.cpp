@@ -37,12 +37,17 @@ vector<string> split(const string &s, char delim) {
   }
   return elems;
 }
+void removeSubstrs(string& s, string p) { 
+  string::size_type n = p.length();
+  for (string::size_type i = s.find(p);
+      i != string::npos;
+      i = s.find(p))
+      s.erase(i, n);
+}
 bool Protocol::processCmd(string cmd,  string& output) /// TODO: CATCH EXCEPTION OF BAD SYNTAX, DONT BE LAZY
 //                                                       MUTEXES
 {
-    int s = cmd.find("\r\n");
-    //if (s != cmd.end())
-        cmd.erase(s, 2);
+    removeSubstrs(cmd,string("\r\n"));   
     auto tokens = split(cmd, ' ');
     if (tokens.size() < 2)
     {
@@ -54,11 +59,11 @@ bool Protocol::processCmd(string cmd,  string& output) /// TODO: CATCH EXCEPTION
         auto it = StoredValue::storedValues.find(tokens[1]);
         if (it == StoredValue::storedValues.end())
         {
-            output = "VALUE MISSED";
+            output = "VALUE MISSED\n";
         }
         else
         {
-            output = "VALUE " + it->second->getValue();
+            output = "VALUE " + it->second->getValue() + "\n";
         }
     }
     else if (!tokens[0].compare("set"))
@@ -74,18 +79,18 @@ bool Protocol::processCmd(string cmd,  string& output) /// TODO: CATCH EXCEPTION
         
         int expires = 0;
         if (tokens.size() > 3)
-            expires = std::stoi(tokens[2]);
+            expires = std::stoi(tokens[3]);
         
         //unique_ptr<StoredValue> p(new StoredValue(value, expires));
         //StoredValue::storedValues[key] = p;
         StoredValue::storedValues.insert(std::make_pair(key, unique_ptr<StoredValue>(new StoredValue(value, expires))));
         //int k =StoredValue::storedValues.size();
-        output = "OK";
+        output = "OK\n";
     }
     else if (!tokens[0].compare("delete"))
     {
         StoredValue::storedValues.erase(tokens[1]);
-        output = "OK";
+        output = "OK\n";
     }
         
     return true;

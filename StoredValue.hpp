@@ -33,7 +33,9 @@ public:
     bool isEternal(){
         return eternal;
     }
-    
+    const chrono::time_point<chrono::system_clock>& getExpiresTime(){
+        return expiresTime;
+    }
     static map<string, std::unique_ptr<StoredValue> > storedValues;
 private:
     string _value;

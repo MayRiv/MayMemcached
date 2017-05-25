@@ -14,14 +14,22 @@
 #include "StoredValue.hpp"
 #include <map>
 #include <memory>
+#include <iostream>
+#include <ctime>
 using namespace std;
 map<string, std::unique_ptr<StoredValue> > StoredValue::storedValues;
 StoredValue::StoredValue(string value, int secondsExpires) {
     _value = value;
     if (secondsExpires > 0)
     {
-        expiresTime =  std::chrono::system_clock::now() + std::chrono::seconds(secondsExpires);
+        auto now = std::chrono::system_clock::now();
+        expiresTime =  now  + std::chrono::seconds(secondsExpires);
         eternal = false;
+        std::time_t t = chrono::system_clock::to_time_t(expiresTime);
+        std::cout << "expires " << std::ctime(&t) << std::endl;
+        
+        std::time_t t2 = chrono::system_clock::to_time_t(now);
+        std::cout << "now " << std::ctime(&t2) << std::endl;
     }
     else eternal = true;
 }

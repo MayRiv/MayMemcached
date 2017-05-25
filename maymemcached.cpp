@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include "socket.hpp"
 #include "WebThreadManager.hpp"
+#include "TimeThread.hpp"
 using namespace std;
 
 /*
@@ -31,6 +32,7 @@ int main(int argc, char** argv) {
 		manager.NewTask(&server);
                 printf("Task launched\n");
     }
+    TimeThread timeThread;
     printf("All tasks launched\n");
     while(1)
         sleep(1);
