@@ -17,6 +17,8 @@
 #include <map>
 #include <chrono>
 #include <string>
+#include <thread>
+#include <mutex>
 //#include <ctime>
 using namespace std;
 class StoredValue {
@@ -36,7 +38,8 @@ public:
     const chrono::time_point<chrono::system_clock>& getExpiresTime(){
         return expiresTime;
     }
-    static map<string, std::unique_ptr<StoredValue> > storedValues;
+    //static map<string, std::unique_ptr<StoredValue> > storedValues;
+    //static mutex storedValuesMutex;
 private:
     string _value;
     chrono::time_point<chrono::system_clock> expiresTime;

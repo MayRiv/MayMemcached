@@ -17,6 +17,8 @@
 #include "socket.hpp"
 #include "WebThreadManager.hpp"
 #include "TimeThread.hpp"
+#include "MemCachedStorage.hpp"
+#include "MmapRepository.hpp"
 using namespace std;
 
 /*
@@ -24,6 +26,8 @@ using namespace std;
  */
 int main(int argc, char** argv) {
 
+    MmapRepository rep("storage.bin");
+    MemCachedStorage::Instance().Init(&rep);
     lb::SocketClient server;
     server.InitServer(4000, "127.0.0.1");
     WebThreadManager manager;

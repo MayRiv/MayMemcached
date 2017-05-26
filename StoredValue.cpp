@@ -16,8 +16,10 @@
 #include <memory>
 #include <iostream>
 #include <ctime>
+#include <mutex>
 using namespace std;
-map<string, std::unique_ptr<StoredValue> > StoredValue::storedValues;
+//map<string, std::unique_ptr<StoredValue> > StoredValue::storedValues;
+//mutex StoredValue::storedValuesMutex;
 StoredValue::StoredValue(string value, int secondsExpires) {
     _value = value;
     if (secondsExpires > 0)
