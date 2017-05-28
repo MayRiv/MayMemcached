@@ -28,6 +28,7 @@ public:
     bool Init(IRepository* repository)
     {
         this->repository = repository;
+        this->repository->load(storedValues);
     }
     virtual ~MemCachedStorage();
     map<string, std::unique_ptr<StoredValue> > storedValues;

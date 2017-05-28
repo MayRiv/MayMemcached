@@ -62,6 +62,8 @@ void WebThread::run()
                     
                 
             }
+            delete client;
+            client = 0;
         }
         catch (...)
         {

@@ -36,6 +36,11 @@ StoredValue::StoredValue(string value, int secondsExpires) {
     else eternal = true;
 }
 
+StoredValue::StoredValue(string value, chrono::time_point<chrono::system_clock> momentExpires, bool isEternal) {
+    _value = value;
+    expiresTime =  momentExpires;
+    eternal = isEternal;
+}
 /*StoredValue::StoredValue(const StoredValue& orig) {
 }*/
 

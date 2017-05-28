@@ -22,6 +22,7 @@ public:
     IRepository(const IRepository& orig);
     virtual ~IRepository();
     virtual bool sync(map<string, std::unique_ptr<StoredValue> >& storedValues) = 0;
+    virtual bool load(map<string, std::unique_ptr<StoredValue> >& storedValues) = 0;
 private:
 
 };

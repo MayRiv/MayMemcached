@@ -24,6 +24,7 @@ using namespace std;
 class StoredValue {
 public:
     StoredValue(string value, int secondsExpires);
+    StoredValue(string value, chrono::system_clock::time_point momentExpires, bool isEternal);
     StoredValue(const StoredValue& orig) = delete;
         StoredValue& operator=(const StoredValue& ) = delete;
 
@@ -43,7 +44,7 @@ public:
 private:
     string _value;
     chrono::time_point<chrono::system_clock> expiresTime;
-    bool eternal;
+    bool eternal = false;
 };
 
 #endif /* STOREDVALUE_HPP */

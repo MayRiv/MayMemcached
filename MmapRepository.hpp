@@ -19,6 +19,7 @@ public:
     MmapRepository(string file);
     MmapRepository(const MmapRepository& orig) = delete;
     bool sync(map<string, std::unique_ptr<StoredValue> >& storedValues);
+    bool load(map<string, std::unique_ptr<StoredValue> >& storedValues);
     virtual ~MmapRepository();
 private:
     unsigned char* data;
