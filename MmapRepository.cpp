@@ -82,25 +82,28 @@ bool MmapRepository::sync(map<string, std::unique_ptr<StoredValue> >& storedValu
     size_t offset = 0;
     auto temp_data = data;
     for(auto& it: storedValues)
-    {  
-        //it.first.copy(data+offset,it.first.length(),0);
-        memcpy(temp_data, (unsigned char*) it.first.c_str(),it.first.length());
-        temp_data[it.first.length()] = 0;
-        temp_data += it.first.length() + 1;
-        //it.second->getValue().copy(data+offset,it.second->getValue().length(),0);
-        memcpy(temp_data, (unsigned char*) it.second->getValue().c_str(),it.second->getValue().length());
-        //*(temp_data + it.second->getValue().length()) = 0;
-        temp_data[it.second->getValue().length()] = 0;
-        temp_data += it.second->getValue().length() + 1;
-        //memcpy(temp_data, it.second->getExpiresTime(),sizeof(chrono::time_point<chrono::system_clock>));
-        //temp_data += sizeof(chrono::time_point<chrono::system_clock>);
-        unsigned int epoch = it.second->getExpiresTime().time_since_epoch().count();
-        //memcpy(temp_data, &epoch, sizeof(unsigned int));
-        *(temp_data) = epoch;
-        temp_data += sizeof(unsigned int);
-        //memcpy(temp_data, (unsigned char*)it.second->isEternal(), sizeof(bool));
-        *(temp_data ) = it.second->isEternal();
-        temp_data += sizeof(bool);
+    {
+        if (!it.first.empty())
+        {
+            //it.first.copy(data+offset,it.first.length(),0);
+            memcpy(temp_data, (unsigned char*) it.first.c_str(),it.first.length());
+            temp_data[it.first.length()] = 0;
+            temp_data += it.first.length() + 1;
+            //it.second->getValue().copy(data+offset,it.second->getValue().length(),0);
+            memcpy(temp_data, (unsigned char*) it.second->getValue().c_str(),it.second->getValue().length());
+            //*(temp_data + it.second->getValue().length()) = 0;
+            temp_data[it.second->getValue().length()] = 0;
+            temp_data += it.second->getValue().length() + 1;
+            //memcpy(temp_data, it.second->getExpiresTime(),sizeof(chrono::time_point<chrono::system_clock>));
+            //temp_data += sizeof(chrono::time_point<chrono::system_clock>);
+            unsigned int epoch = it.second->getExpiresTime().time_since_epoch().count();
+            //memcpy(temp_data, &epoch, sizeof(unsigned int));
+            *(temp_data) = epoch;
+            temp_data += sizeof(unsigned int);
+            //memcpy(temp_data, (unsigned char*)it.second->isEternal(), sizeof(bool));
+            *(temp_data ) = it.second->isEternal();
+            temp_data += sizeof(bool);
+        }
     }
     return true;
 }

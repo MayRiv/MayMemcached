@@ -17,6 +17,9 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <fstream>
+#include <algorithm>
+#include <iostream>
+using namespace std;
 MemCachedStorage::MemCachedStorage() {
     repository = 0;
 }
@@ -26,5 +29,23 @@ MemCachedStorage::MemCachedStorage() {
 MemCachedStorage::~MemCachedStorage() {
 }
 
-
+bool MemCachedStorage::logToFile()
+{
+    try
+    {
+        lock_guard<std::mutex> lock(storedValuesMutex);
+        ofstream out("/tmp/log.txt",fstream::out); 
+        std::for_each(this->storedValues.begin(), this->storedValues.end(),[&out](map<string, std::unique_ptr<StoredValue> >::value_type &v)
+        {
+            out << v.first << " -> " << v.second->getValue() << endl;
+        });
+        out.close();
+    }
+    catch (...)
+    {
+        cout << "Can't write to /tmp/log.txt" << endl;
+        return false;
+    }
+    return true;
+}
 

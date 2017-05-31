@@ -60,7 +60,7 @@ void WebThread::run()
                 if (client->Send(output.c_str(), output.length()) < 0)
                     throw true;
                     
-                
+                memset(buf,0,WEB_BUF_SIZE);
             }
             delete client;
             client = 0;

@@ -42,6 +42,7 @@ public:
             return repository->sync(storedValues);
         return false;
     }
+    bool logToFile();
 private:
     MemCachedStorage();
     IRepository* repository;

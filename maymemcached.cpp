@@ -13,6 +13,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <signal.h>
 #include <unistd.h>
 #include "socket.hpp"
 #include "WebThreadManager.hpp"
@@ -24,6 +25,23 @@ using namespace std;
 /*
  * 
  */
+
+void signalHandler(int signo)
+{
+    cout << "hello" << endl;
+    MemCachedStorage::Instance().logToFile();
+    
+}
+void initSignals(){
+    struct sigaction act;
+    memset(&act, 0, sizeof(act));
+    act.sa_handler = signalHandler;
+    sigset_t   set; 
+    sigemptyset(&set);                                                             
+    sigaddset(&set, SIGUSR1); 
+    act.sa_mask = set;
+    sigaction(SIGUSR1, &act, 0);
+}
 int main(int argc, char** argv) {
 
     MmapRepository rep("storage.bin");
@@ -37,7 +55,11 @@ int main(int argc, char** argv) {
                 printf("Task launched\n");
     }
     TimeThread timeThread;
+    
+    initSignals();
     printf("All tasks launched\n");
     while(1)
         sleep(1);
+    
+    
 }
