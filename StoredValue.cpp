@@ -18,8 +18,6 @@
 #include <ctime>
 #include <mutex>
 using namespace std;
-//map<string, std::unique_ptr<StoredValue> > StoredValue::storedValues;
-//mutex StoredValue::storedValuesMutex;
 StoredValue::StoredValue(string value, unsigned int secondsExpires) {
     _value = value;
     if (secondsExpires > 0)
@@ -27,11 +25,6 @@ StoredValue::StoredValue(string value, unsigned int secondsExpires) {
         auto now = std::chrono::system_clock::now();
         expiresTime =  now  + std::chrono::seconds(secondsExpires);
         eternal = false;
-        std::time_t t = chrono::system_clock::to_time_t(expiresTime);
-        std::cout << "expires " << std::ctime(&t) << std::endl;
-        
-        std::time_t t2 = chrono::system_clock::to_time_t(now);
-        std::cout << "now " << std::ctime(&t2) << std::endl;
     }
     else eternal = true;
 }

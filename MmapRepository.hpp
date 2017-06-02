@@ -18,6 +18,9 @@ class MmapRepository: public IRepository {
 public:
     MmapRepository(string file);
     MmapRepository(const MmapRepository& orig) = delete;
+    MmapRepository(const MmapRepository&& orig) = delete;
+    MmapRepository& operator= (MmapRepository const&) = delete;
+    MmapRepository& operator= (MmapRepository const&&) = delete;
     bool sync(map<string, std::unique_ptr<StoredValue> >& storedValues);
     bool load(map<string, std::unique_ptr<StoredValue> >& storedValues);
     virtual ~MmapRepository();

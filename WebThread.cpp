@@ -56,7 +56,6 @@ void WebThread::run()
                 if (client->Read(buf,WEB_BUF_SIZE,0,10) <= 0)
                     throw true;
                 isContinue = Protocol::processCmd(string(buf),output);
-                cout << output << endl;
                 if (client->Send(output.c_str(), output.length()) < 0)
                     throw true;
                     
@@ -67,7 +66,7 @@ void WebThread::run()
         }
         catch (...)
         {
-            cout << "Some exception" << endl;
+            cout << "Exception" << endl;
             delete client;
             client = 0;
         }

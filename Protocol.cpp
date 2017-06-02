@@ -30,16 +30,6 @@ Protocol::Protocol(const Protocol& orig) {
 
 Protocol::~Protocol() {
 }
-vector<string> split(const string &s, char delim) {
-  stringstream ss(s);
-  
-  string item;
-  vector<string> elems;
-  while (getline(ss, item, delim)) {
-    elems.push_back(move(item));
-  }
-  return elems;
-}
 void removeSubstrs(string& s, string p) { 
   string::size_type n = p.length();
   for (string::size_type i = s.find(p);
@@ -74,8 +64,7 @@ bool parse(string cmd, vector<string>& out)
 bool Protocol::processCmd(string cmd,  string& output)
 {
     lock_guard<std::mutex> lock(MemCachedStorage::Instance().storedValuesMutex);
-    removeSubstrs(cmd,string("\r\n"));   
-    //auto tokens = split(cmd, ' ');
+    removeSubstrs(cmd,string("\r\n"));
     vector<string> tokens;
     auto res = parse(cmd, tokens);
     if (!tokens[0].compare("quit"))
@@ -115,10 +104,7 @@ bool Protocol::processCmd(string cmd,  string& output)
         if (tokens.size() > 3)
             expires = std::stol(tokens[3]);
         
-        //unique_ptr<StoredValue> p(new StoredValue(value, expires));
-        //MemCachedStorage::Instance().storedValues[key] = p;
         MemCachedStorage::Instance().storedValues.insert(std::make_pair(key, unique_ptr<StoredValue>(new StoredValue(value, expires))));
-        //int k =MemCachedStorage::Instance().storedValues.size();
         output = "OK\n";
     }
     else if (!tokens[0].compare("delete"))

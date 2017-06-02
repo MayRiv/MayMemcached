@@ -34,7 +34,9 @@ public:
     map<string, std::unique_ptr<StoredValue> > storedValues;
     
     MemCachedStorage(MemCachedStorage const&) = delete;
+    MemCachedStorage(MemCachedStorage const&&) = delete;
     MemCachedStorage& operator= (MemCachedStorage const&) = delete;
+    MemCachedStorage& operator= (MemCachedStorage const&&) = delete;
     mutex storedValuesMutex;
     bool sync(map<string, std::unique_ptr<StoredValue> >& storedValues)
     {

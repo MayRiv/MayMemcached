@@ -77,7 +77,6 @@ bool MmapRepository::sync(map<string, std::unique_ptr<StoredValue> >& storedValu
     {
         return value + t.first.length() + 1 + t.second->getValue().length() + 1  + sizeof(chrono::time_point<chrono::system_clock>) + sizeof(bool);
     });
-    cout << "Size is  " << neededSize << endl;
     if (neededSize > size)
     {
         size = neededSize; 
@@ -93,25 +92,15 @@ bool MmapRepository::sync(map<string, std::unique_ptr<StoredValue> >& storedValu
     {
         if (!it.first.empty())
         {
-            //it.first.copy(data+offset,it.first.length(),0);
             memcpy(temp_data, (unsigned char*) it.first.c_str(),it.first.length());
             temp_data[it.first.length()] = 0;
             temp_data += it.first.length() + 1;
-            //it.second->getValue().copy(data+offset,it.second->getValue().length(),0);
             memcpy(temp_data, (unsigned char*) it.second->getValue().c_str(),it.second->getValue().length());
-            //*(temp_data + it.second->getValue().length()) = 0;
             temp_data[it.second->getValue().length()] = 0;
             temp_data += it.second->getValue().length() + 1;
-            //memcpy(temp_data, it.second->getExpiresTime(),sizeof(chrono::time_point<chrono::system_clock>));
-            //temp_data += sizeof(chrono::time_point<chrono::system_clock>);
             unsigned int epoch = it.second->getExpiresTime().time_since_epoch().count();
-            
-            cout << "value " << it.second->getValue() << " epoch " << epoch << endl;
-            //memcpy(temp_data, &epoch, sizeof(unsigned int));
             *((unsigned int*) temp_data) = epoch;
-            cout << "value" << *((unsigned int*) temp_data) << endl;
             temp_data += sizeof(unsigned int);
-            //memcpy(temp_data, (unsigned char*)it.second->isEternal(), sizeof(bool));
             *(temp_data ) = it.second->isEternal();
             temp_data += sizeof(bool);
         }
@@ -121,21 +110,16 @@ bool MmapRepository::sync(map<string, std::unique_ptr<StoredValue> >& storedValu
 }
 bool MmapRepository::load(map<string, std::unique_ptr<StoredValue> >& storedValues)
 {
-    size_t offset = 0;
     auto temp_data = data;
     while((temp_data - data) <= size)
     {
-        
-        char* key_s= (char*)(temp_data);
         string key;
-        key.assign(key_s);
+        key.assign((char*)(temp_data));
         temp_data += key.length() + 1;
-        //string value(const char*(temp_data));
         string value;
         value.assign((char*)(temp_data));
         temp_data += value.length() + 1;
         unsigned int epoch = *((unsigned int*) temp_data);
-        cout << "value " << value << " epoch " << epoch << endl;
         chrono::time_point<chrono::system_clock> time = std::chrono::system_clock::from_time_t(epoch);
         temp_data += sizeof(unsigned int);
         bool isEternal = (*temp_data);
@@ -145,6 +129,4 @@ bool MmapRepository::load(map<string, std::unique_ptr<StoredValue> >& storedValu
         storedValues.insert(std::make_pair(key, unique_ptr<StoredValue>(new StoredValue(value, time, isEternal))));
     }
     
-    
-    cout << "Ready" << endl;
 }

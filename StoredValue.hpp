@@ -26,7 +26,10 @@ public:
     StoredValue(string value, unsigned int secondsExpires);
     StoredValue(string value, chrono::system_clock::time_point momentExpires, bool isEternal);
     StoredValue(const StoredValue& orig) = delete;
-        StoredValue& operator=(const StoredValue& ) = delete;
+    StoredValue(const StoredValue&& orig) = delete;
+    
+    StoredValue& operator=(const StoredValue& ) = delete;
+    StoredValue& operator=(const StoredValue&& ) = delete;
 
     virtual ~StoredValue();
     
@@ -39,8 +42,7 @@ public:
     const chrono::time_point<chrono::system_clock>& getExpiresTime(){
         return expiresTime;
     }
-    //static map<string, std::unique_ptr<StoredValue> > storedValues;
-    //static mutex storedValuesMutex;
+    
 private:
     string _value;
     chrono::time_point<chrono::system_clock> expiresTime;
