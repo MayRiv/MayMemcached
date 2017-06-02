@@ -30,7 +30,7 @@
 using namespace std;
 MmapRepository::MmapRepository(string file):IRepository() {
     const char* c = file.c_str();
-    int fd = open(file.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+    fd = open(file.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
     if (fd < 0)
     {
         cout << "ERROR: " <<  strerror(errno) << endl;
@@ -45,14 +45,17 @@ MmapRepository::MmapRepository(string file):IRepository() {
     }
     size = (size_t)st.st_size;
     if (!size)
-        size = 1024;/* * 1024;*/
-    ftruncate(fd, size);
-    /*if (ftruncate(fd, size) == -1)
     {
-        cout << "ERROR ftruncate: " <<  strerror(errno) << endl;
-        close(fd);
-        throw true;
-    }*/
+        //size = 1024;
+        size = 10;
+        if (ftruncate(fd, size) < 0)
+        {
+            cout << "ERROR ftruncate: " <<  strerror(errno) << endl;
+            close(fd);
+            throw true;
+        }
+        
+    }
     data = (unsigned char*)mmap(0, size, PROT_READ | PROT_WRITE,
                                               MAP_SHARED, fd, 0);
     if(data == MAP_FAILED) {
@@ -75,9 +78,14 @@ bool MmapRepository::sync(map<string, std::unique_ptr<StoredValue> >& storedValu
         return value + t.first.length() + 1 + t.second->getValue().length() + 1  + sizeof(chrono::time_point<chrono::system_clock>) + sizeof(bool);
     });
     cout << "Size is  " << neededSize << endl;
-    if (neededSize < size)
+    if (neededSize > size)
     {
-        //ftrunct shit
+        size = neededSize; 
+        if (ftruncate(fd, neededSize) < 0)
+        {
+            cout << "ERROR ftruncate : " <<  strerror(errno) << endl;
+            throw true;
+        }
     }
     size_t offset = 0;
     auto temp_data = data;
@@ -97,21 +105,25 @@ bool MmapRepository::sync(map<string, std::unique_ptr<StoredValue> >& storedValu
             //memcpy(temp_data, it.second->getExpiresTime(),sizeof(chrono::time_point<chrono::system_clock>));
             //temp_data += sizeof(chrono::time_point<chrono::system_clock>);
             unsigned int epoch = it.second->getExpiresTime().time_since_epoch().count();
+            
+            cout << "value " << it.second->getValue() << " epoch " << epoch << endl;
             //memcpy(temp_data, &epoch, sizeof(unsigned int));
-            *(temp_data) = epoch;
+            *((unsigned int*) temp_data) = epoch;
+            cout << "value" << *((unsigned int*) temp_data) << endl;
             temp_data += sizeof(unsigned int);
             //memcpy(temp_data, (unsigned char*)it.second->isEternal(), sizeof(bool));
             *(temp_data ) = it.second->isEternal();
             temp_data += sizeof(bool);
         }
     }
+    memset(temp_data,0, size - neededSize);
     return true;
 }
 bool MmapRepository::load(map<string, std::unique_ptr<StoredValue> >& storedValues)
 {
     size_t offset = 0;
     auto temp_data = data;
-    while(/*offset*/ (temp_data - data) <= size)
+    while((temp_data - data) <= size)
     {
         
         char* key_s= (char*)(temp_data);
@@ -122,20 +134,14 @@ bool MmapRepository::load(map<string, std::unique_ptr<StoredValue> >& storedValu
         string value;
         value.assign((char*)(temp_data));
         temp_data += value.length() + 1;
-        //chrono::time_point<chrono::system_clock> time =  st;atic_cast<chrono::time_point<chrono::system_clock> >*(temp_data);
-        //temp_data += sizeof(chrono::time_point<chrono::system_clock>);
-        //unsigned int epoch = *(data offset);
-        //chrono::time_point<chrono::system_clock> time(epoch);
-        //memcpy(&time, temp_data, sizeof(chrono::time_point<chrono::system_clock>));
-        unsigned int epoch = *temp_data;
-        //chrono::time_point<chrono::system_clock> time(epoch);
+        unsigned int epoch = *((unsigned int*) temp_data);
+        cout << "value " << value << " epoch " << epoch << endl;
         chrono::time_point<chrono::system_clock> time = std::chrono::system_clock::from_time_t(epoch);
-        //temp_data += sizeof(unsigned int);
-        //temp_data += sizeof(chrono::time_point<chrono::system_clock>);
         temp_data += sizeof(unsigned int);
         bool isEternal = (*temp_data);
         temp_data += sizeof(bool);
-            
+        if (key.empty())
+            break;
         storedValues.insert(std::make_pair(key, unique_ptr<StoredValue>(new StoredValue(value, time, isEternal))));
     }
     

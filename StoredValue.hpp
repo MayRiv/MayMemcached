@@ -23,7 +23,7 @@
 using namespace std;
 class StoredValue {
 public:
-    StoredValue(string value, int secondsExpires);
+    StoredValue(string value, unsigned int secondsExpires);
     StoredValue(string value, chrono::system_clock::time_point momentExpires, bool isEternal);
     StoredValue(const StoredValue& orig) = delete;
         StoredValue& operator=(const StoredValue& ) = delete;
